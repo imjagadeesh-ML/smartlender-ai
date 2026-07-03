@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartLender AI - Register</title>
+    <!-- Google Fonts for Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+</head>
+<body class="auth-body">
+    <div class="background-decor animate-bg"></div>
+    <div class="auth-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">✦</span> SmartLender AI
+            </div>
+            <h1>Create Account</h1>
+            <p class="subtitle">Join SmartLender AI to analyze loan application risk metrics.</p>
+        </header>
+
+        <!-- Register Card -->
+        <main class="card auth-card">
+            <div id="alertBox" class="alert-box hidden"></div>
+            
+            <form id="registerForm" autocomplete="off">
+                <div class="form-grid single-column">
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Create a password" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="registerBtn">
+                    <span class="btn-text">Register Account</span>
+                    <div class="spinner hidden"></div>
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Already have an account? <a href="/login" class="auth-link">Sign In</a></p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Registration Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('registerForm');
+            const submitBtn = document.getElementById('registerBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const spinner = submitBtn.querySelector('.spinner');
+            const alertBox = document.getElementById('alertBox');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Clear previous alerts
+                alertBox.classList.add('hidden');
+                alertBox.textContent = '';
+                alertBox.className = 'alert-box hidden';
+
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                // Frontend validation
+                if (password !== confirmPassword) {
+                    alertBox.textContent = 'Passwords do not match.';
+                    alertBox.className = 'alert-box alert-error';
+                    alertBox.classList.remove('hidden');
+                    return;
+                }
+
+                if (password.length < 4) {
+                    alertBox.textContent = 'Password must be at least 4 characters long.';
+                    alertBox.className = 'alert-box alert-error';
+                    alertBox.classList.remove('hidden');
+                    return;
+                }
+
+                // Loading State
+                submitBtn.disabled = true;
+                btnText.textContent = 'Creating Account...';
+                spinner.classList.remove('hidden');
+
+                try {
+                    const response = await fetch('/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        alertBox.textContent = 'Account created successfully! Redirecting to login...';
+                        alertBox.className = 'alert-box alert-success';
+                        alertBox.classList.remove('hidden');
+                        setTimeout(() => {
+                            window.location.href = '/login';
+                        }, 1200);
+                    } else {
+                        alertBox.textContent = data.detail || 'Username already exists.';
+                        alertBox.className = 'alert-box alert-error';
+                        alertBox.classList.remove('hidden');
+                        submitBtn.disabled = false;
+                        btnText.textContent = 'Register Account';
+                        spinner.classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    alertBox.textContent = 'A system error occurred. Please check backend connection.';
+                    alertBox.className = 'alert-box alert-error';
+                    alertBox.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Register Account';
+                    spinner.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
