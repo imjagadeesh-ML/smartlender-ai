@@ -64,12 +64,3 @@ Open your web browser and navigate to:
 http://127.0.0.1:5000/
 ```
 
----
-
-## 🧪 Testing
-
-We have built automated unit tests to mock requests and verify the home page and prediction calculations:
-```bash
-python C:\Users\jagad\.gemini\antigravity\brain\28b81c4e-aba5-4399-8789-756c7b765fad\scratch\test_app.py
-```
-*(Tests cover standard approvals, model-based rejections, and DTI-overridden rejections).*
